@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from .db import init_db, insert_event, insert_telemetry, fetch_telemetry, fetch_events, latest, ack_event, get_connection
+from .db import init_db, insert_event, insert_telemetry, fetch_telemetry, fetch_events, latest, ack_event, get_connection, is_postgres
 from .schemas import TelemetryIn, SimulationEvent, AcknowledgeResponse
 from .ml.engine import RiskModel
 from .risk_engine.decision import decide
@@ -75,10 +75,20 @@ def acknowledge(event_id:int):
 
 @app.post('/simulation/reset')
 def reset_simulation(site_id: str = 'MANHOLE-01'):
-    with get_connection() as conn:
-        conn.execute('DELETE FROM telemetry WHERE site_id=?', (site_id,))
-        conn.execute('DELETE FROM events WHERE site_id=?', (site_id,))
-        conn.commit()
+    if is_postgres():
+        conn = get_connection()
+        try:
+            with conn.cursor() as cur:
+                cur.execute('DELETE FROM telemetry WHERE site_id=%s', (site_id,))
+                cur.execute('DELETE FROM events WHERE site_id=%s', (site_id,))
+            conn.commit()
+        finally:
+            conn.close()
+    else:
+        with get_connection() as conn:
+            conn.execute('DELETE FROM telemetry WHERE site_id=?', (site_id,))
+            conn.execute('DELETE FROM events WHERE site_id=?', (site_id,))
+            conn.commit()
     res = process({'site_id': site_id, 'timestamp': datetime.now(timezone.utc).isoformat(), 'h2s': 4.5, 'ch4': 1.2, 'o2': 20.5, 'temperature': 28.0, 'humidity': 72.0})
     return {'success': True, 'message': 'Demo state reset to clean baseline', 'latest': res}
 
