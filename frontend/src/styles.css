@@ -2,10 +2,10 @@
 
 :root {
   --bg-main: #050F14;
-  --bg-surface: rgba(17, 26, 32, 0.92);
-  --bg-secondary: rgba(22, 34, 41, 0.92);
+  --bg-surface: rgba(17, 26, 32, 0.88);
+  --bg-secondary: rgba(22, 34, 41, 0.88);
   --bg-elevated: #1B2A32;
-  --bg-structural: rgba(32, 44, 51, 0.95);
+  --bg-structural: rgba(32, 44, 51, 0.90);
 
   --brand-primary: #19A7B8;
   --brand-accent: #2CC6D6;
@@ -23,9 +23,7 @@
   --font-mono: 'IBM Plex Mono', 'JetBrains Mono', monospace;
 }
 
-html,
-body,
-#root {
+html {
   width: 100%;
   max-width: 100%;
   min-height: 100%;
@@ -49,21 +47,26 @@ body {
   background-color: #050F14;
   background-image:
     linear-gradient(
-      rgba(5, 15, 20, 0.20),
-      rgba(5, 15, 20, 0.20)
+      rgba(5, 15, 20, 0.15),
+      rgba(5, 15, 20, 0.15)
     ),
-    url('/assets/a_high_resolution_cinematic_futuristic_industria.png');
+    url('./assets/bg-industrial.png');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text-main);
   line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
+#root,
 .app,
-.shell {
+.shell,
+main {
   background: transparent !important;
   position: relative;
   min-height: 100vh;
