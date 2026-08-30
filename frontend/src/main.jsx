@@ -28,10 +28,10 @@ function MiniSparkline({ data, field }) {
     })
 
     const stroke = field === 'o2' 
-      ? (vals.at(-1) <= 18.5 ? '#D61F3A' : '#16845A') 
+      ? (vals.at(-1) <= 18.5 ? '#E33B4F' : '#22A06B') 
       : (field === 'h2s' 
-        ? (vals.at(-1) >= 18 ? '#D61F3A' : vals.at(-1) >= 6 ? '#F5A623' : '#16845A') 
-        : '#126278')
+        ? (vals.at(-1) >= 18 ? '#E33B4F' : vals.at(-1) >= 6 ? '#F2A623' : '#22A06B') 
+        : '#2CC6D6')
     return { points: pts.join(' '), strokeColor: stroke }
   }, [data, field])
 
