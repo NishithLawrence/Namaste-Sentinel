@@ -77,13 +77,10 @@ def acknowledge(event_id:int):
 def reset_simulation(site_id: str = 'MANHOLE-01'):
     if is_postgres():
         conn = get_connection()
-        try:
-            with conn.cursor() as cur:
-                cur.execute('DELETE FROM telemetry WHERE site_id=%s', (site_id,))
-                cur.execute('DELETE FROM events WHERE site_id=%s', (site_id,))
-            conn.commit()
-        finally:
-            conn.close()
+        with conn.cursor() as cur:
+            cur.execute('DELETE FROM telemetry WHERE site_id=%s', (site_id,))
+            cur.execute('DELETE FROM events WHERE site_id=%s', (site_id,))
+        conn.commit()
     else:
         with get_connection() as conn:
             conn.execute('DELETE FROM telemetry WHERE site_id=?', (site_id,))

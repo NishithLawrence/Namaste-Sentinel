@@ -23,14 +23,22 @@ def is_postgres():
     url = get_database_url()
     return bool(url and HAS_PSYCOPG2)
 
+_pg_conn = None
+
 def get_connection():
+    global _pg_conn
     url = get_database_url()
     if is_postgres():
-        # Handle postgres:// to postgresql:// URI scheme conversion if needed
+        if _pg_conn is not None:
+            try:
+                if _pg_conn.closed == 0:
+                    return _pg_conn
+            except Exception:
+                _pg_conn = None
         if url.startswith('postgres://'):
             url = url.replace('postgres://', 'postgresql://', 1)
-        conn = psycopg2.connect(url, cursor_factory=RealDictCursor)
-        return conn
+        _pg_conn = psycopg2.connect(url, cursor_factory=RealDictCursor)
+        return _pg_conn
     else:
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
@@ -73,8 +81,10 @@ def init_db():
                 CREATE INDEX IF NOT EXISTS idx_events_site_id ON events(site_id, id DESC);
                 ''')
             conn.commit()
-        finally:
-            conn.close()
+        except Exception:
+            global _pg_conn
+            _pg_conn = None
+            raise
     else:
         with get_connection() as conn:
             conn.executescript('''
@@ -105,8 +115,10 @@ def insert_telemetry(row: dict[str, Any]) -> int:
                 new_id = cur.fetchone()['id']
             conn.commit()
             return int(new_id)
-        finally:
-            conn.close()
+        except Exception:
+            global _pg_conn
+            _pg_conn = None
+            raise
     else:
         with get_connection() as conn:
             cur = conn.execute('''INSERT INTO telemetry
@@ -126,8 +138,10 @@ def insert_event(e: dict[str, Any]) -> int:
                 new_id = cur.fetchone()['id']
             conn.commit()
             return int(new_id)
-        finally:
-            conn.close()
+        except Exception:
+            global _pg_conn
+            _pg_conn = None
+            raise
     else:
         with get_connection() as conn:
             cur = conn.execute('INSERT INTO events (timestamp,site_id,event_type,severity,message) VALUES (?,?,?,?,?)', vals)
@@ -142,8 +156,10 @@ def fetch_telemetry(site_id: str, limit: int = 120):
                 cur.execute('SELECT * FROM telemetry WHERE site_id=%s ORDER BY id DESC LIMIT %s', (site_id, limit))
                 rows = cur.fetchall()
             return [dict(r) for r in reversed(rows)]
-        finally:
-            conn.close()
+        except Exception:
+            global _pg_conn
+            _pg_conn = None
+            raise
     else:
         with get_connection() as conn:
             rows = conn.execute('SELECT * FROM telemetry WHERE site_id=? ORDER BY id DESC LIMIT ?', (site_id, limit)).fetchall()
@@ -157,8 +173,10 @@ def fetch_events(site_id: str, limit: int = 50):
                 cur.execute('SELECT * FROM events WHERE site_id=%s ORDER BY id DESC LIMIT %s', (site_id, limit))
                 rows = cur.fetchall()
             return [dict(r) for r in rows]
-        finally:
-            conn.close()
+        except Exception:
+            global _pg_conn
+            _pg_conn = None
+            raise
     else:
         with get_connection() as conn:
             rows = conn.execute('SELECT * FROM events WHERE site_id=? ORDER BY id DESC LIMIT ?', (site_id, limit)).fetchall()
@@ -172,8 +190,10 @@ def latest(site_id: str):
                 cur.execute('SELECT * FROM telemetry WHERE site_id=%s ORDER BY id DESC LIMIT 1', (site_id,))
                 row = cur.fetchone()
             return dict(row) if row else None
-        finally:
-            conn.close()
+        except Exception:
+            global _pg_conn
+            _pg_conn = None
+            raise
     else:
         with get_connection() as conn:
             row = conn.execute('SELECT * FROM telemetry WHERE site_id=? ORDER BY id DESC LIMIT 1', (site_id,)).fetchone()
@@ -187,8 +207,10 @@ def ack_event(event_id: int) -> bool:
                 cur.execute('UPDATE events SET acknowledged=1 WHERE id=%s', (event_id,))
                 conn.commit()
                 return cur.rowcount == 1
-        finally:
-            conn.close()
+        except Exception:
+            global _pg_conn
+            _pg_conn = None
+            raise
     else:
         with get_connection() as conn:
             cur = conn.execute('UPDATE events SET acknowledged=1 WHERE id=?', (event_id,))
