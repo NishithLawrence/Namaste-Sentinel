@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
 
-const API = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.port === '5173' ? 'http://localhost:8000' : '')
+const API = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.port === '5173' ? 'http://localhost:8000' : 'https://namaste-sentinel.vercel.app')
 const SITE = 'MANHOLE-01'
 
 const SENSOR_META = {
