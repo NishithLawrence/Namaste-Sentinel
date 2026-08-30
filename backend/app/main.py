@@ -28,6 +28,7 @@ DIST_DIR = PROJECT_ROOT / 'frontend' / 'dist'
 if DIST_DIR.exists():
     app.mount('/assets', StaticFiles(directory=str(DIST_DIR / 'assets')), name='assets')
 
+@app.get('/api/index.py', include_in_schema=False)
 @app.get('/', include_in_schema=False)
 def serve_spa():
     if DIST_DIR.exists():
