@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from .db import init_db, insert_event, insert_telemetry, fetch_telemetry, fetch_events, latest, ack_event, get_connection, is_postgres
+from .db import init_db, insert_event, insert_telemetry, fetch_telemetry, fetch_telemetry_logs, fetch_events, latest, ack_event, get_connection, is_postgres
 from .schemas import TelemetryIn, SimulationEvent, AcknowledgeResponse
 from .ml.engine import RiskModel
 from .risk_engine.decision import decide
@@ -75,6 +75,9 @@ def status(site_id:str):
 
 @app.get('/sites/{site_id}/telemetry')
 def telemetry_history(site_id:str,limit:int=120): return fetch_telemetry(site_id,max(1,min(limit,500)))
+
+@app.get('/telemetry/logs')
+def get_telemetry_logs(limit:int=120): return fetch_telemetry_logs(max(1,min(limit,500)))
 
 @app.get('/sites/{site_id}/events')
 def events(site_id:str,limit:int=50): return fetch_events(site_id,max(1,min(limit,200)))

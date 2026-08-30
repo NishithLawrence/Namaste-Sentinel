@@ -18,6 +18,17 @@ CREATE TABLE IF NOT EXISTS telemetry (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS telemetry_logs (
+  id SERIAL PRIMARY KEY,
+  timestamp TEXT NOT NULL,
+  h2s REAL NOT NULL,
+  ch4 REAL NOT NULL,
+  o2 REAL NOT NULL,
+  temperature REAL NOT NULL,
+  humidity REAL NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS events (
   id SERIAL PRIMARY KEY,
   timestamp TEXT NOT NULL,
@@ -31,4 +42,5 @@ CREATE TABLE IF NOT EXISTS events (
 
 -- Index for fast site telemetry & status queries
 CREATE INDEX IF NOT EXISTS idx_telemetry_site_id ON telemetry(site_id, id DESC);
+CREATE INDEX IF NOT EXISTS idx_telemetry_logs_timestamp ON telemetry_logs(id DESC);
 CREATE INDEX IF NOT EXISTS idx_events_site_id ON events(site_id, id DESC);

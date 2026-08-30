@@ -67,6 +67,16 @@ def init_db():
                   explanation TEXT,
                   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
+                CREATE TABLE IF NOT EXISTS telemetry_logs (
+                  id SERIAL PRIMARY KEY,
+                  timestamp TEXT NOT NULL,
+                  h2s REAL NOT NULL,
+                  ch4 REAL NOT NULL,
+                  o2 REAL NOT NULL,
+                  temperature REAL NOT NULL,
+                  humidity REAL NOT NULL,
+                  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
                 CREATE TABLE IF NOT EXISTS events (
                   id SERIAL PRIMARY KEY,
                   timestamp TEXT NOT NULL,
@@ -78,6 +88,7 @@ def init_db():
                   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
                 CREATE INDEX IF NOT EXISTS idx_telemetry_site_id ON telemetry(site_id, id DESC);
+                CREATE INDEX IF NOT EXISTS idx_telemetry_logs_timestamp ON telemetry_logs(id DESC);
                 CREATE INDEX IF NOT EXISTS idx_events_site_id ON events(site_id, id DESC);
                 ''')
             conn.commit()
@@ -94,6 +105,11 @@ def init_db():
               anomaly_score REAL, risk_score REAL, rule_state TEXT, final_decision TEXT, reason TEXT, explanation TEXT,
               created_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS telemetry_logs (
+              id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT NOT NULL,
+              h2s REAL NOT NULL, ch4 REAL NOT NULL, o2 REAL NOT NULL, temperature REAL NOT NULL, humidity REAL NOT NULL,
+              created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
             CREATE TABLE IF NOT EXISTS events (
               id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT NOT NULL, site_id TEXT NOT NULL,
               event_type TEXT NOT NULL, severity TEXT NOT NULL, message TEXT NOT NULL, acknowledged INTEGER DEFAULT 0
@@ -103,7 +119,76 @@ def init_db():
             except sqlite3.OperationalError:
                 pass
 
+def insert_telemetry_log(row: dict[str, Any]) -> int | None:
+    """Persist telemetry reading into telemetry_logs table (Postgres/SQLite & Supabase REST API)."""
+    ts = str(row.get('timestamp') or '')
+    h2s = float(row.get('h2s', 0.0))
+    ch4 = float(row.get('ch4', 0.0))
+    o2 = float(row.get('o2', 0.0))
+    temp = float(row.get('temperature', 0.0))
+    hum = float(row.get('humidity', 0.0))
+
+    log_id = None
+
+    # 1. SQL Database Insertion (PostgreSQL / SQLite)
+    try:
+        if is_postgres():
+            conn = get_connection()
+            with conn.cursor() as cur:
+                cur.execute('''INSERT INTO telemetry_logs (timestamp, h2s, ch4, o2, temperature, humidity)
+                VALUES (%s, %s, %s, %s, %s, %s) RETURNING id''', (ts, h2s, ch4, o2, temp, hum))
+                new_id = cur.fetchone()['id']
+            conn.commit()
+            log_id = int(new_id)
+        else:
+            with get_connection() as conn:
+                cur = conn.execute('''INSERT INTO telemetry_logs (timestamp, h2s, ch4, o2, temperature, humidity)
+                VALUES (?, ?, ?, ?, ?, ?)''', (ts, h2s, ch4, o2, temp, hum))
+                conn.commit()
+                log_id = int(cur.lastrowid)
+    except Exception:
+        pass
+
+    # 2. Supabase REST API Insertion (if SUPABASE_URL and SUPABASE_KEY exist)
+    sb_url = os.getenv('SUPABASE_URL')
+    sb_key = os.getenv('SUPABASE_KEY') or os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
+    if sb_url and sb_key:
+        try:
+            import urllib.request
+            import json
+            endpoint = f"{sb_url.rstrip('/')}/rest/v1/telemetry_logs"
+            payload = json.dumps({
+                'timestamp': ts,
+                'h2s': h2s,
+                'ch4': ch4,
+                'o2': o2,
+                'temperature': temp,
+                'humidity': hum
+            }).encode('utf-8')
+            req = urllib.request.Request(
+                endpoint,
+                data=payload,
+                headers={
+                    'apikey': sb_key,
+                    'Authorization': f'Bearer {sb_key}',
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                method='POST'
+            )
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                pass
+        except Exception:
+            pass
+
+    return log_id
+
 def insert_telemetry(row: dict[str, Any]) -> int:
+    try:
+        insert_telemetry_log(row)
+    except Exception:
+        pass
+
     vals = tuple(row.get(k) for k in ('timestamp','site_id','h2s','ch4','o2','temperature','humidity','anomaly_score','risk_score','rule_state','final_decision','reason','explanation'))
     if is_postgres():
         conn = get_connection()
@@ -163,6 +248,23 @@ def fetch_telemetry(site_id: str, limit: int = 120):
     else:
         with get_connection() as conn:
             rows = conn.execute('SELECT * FROM telemetry WHERE site_id=? ORDER BY id DESC LIMIT ?', (site_id, limit)).fetchall()
+        return [dict(r) for r in reversed(rows)]
+
+def fetch_telemetry_logs(limit: int = 120):
+    if is_postgres():
+        conn = get_connection()
+        try:
+            with conn.cursor() as cur:
+                cur.execute('SELECT * FROM telemetry_logs ORDER BY id DESC LIMIT %s', (limit,))
+                rows = cur.fetchall()
+            return [dict(r) for r in reversed(rows)]
+        except Exception:
+            global _pg_conn
+            _pg_conn = None
+            raise
+    else:
+        with get_connection() as conn:
+            rows = conn.execute('SELECT * FROM telemetry_logs ORDER BY id DESC LIMIT ?', (limit,)).fetchall()
         return [dict(r) for r in reversed(rows)]
 
 def fetch_events(site_id: str, limit: int = 50):
