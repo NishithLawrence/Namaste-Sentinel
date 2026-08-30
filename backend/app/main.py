@@ -27,9 +27,12 @@ app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, 
 DIST_DIR = PROJECT_ROOT / 'frontend' / 'dist'
 if DIST_DIR.exists():
     app.mount('/assets', StaticFiles(directory=str(DIST_DIR / 'assets')), name='assets')
-    @app.get('/', include_in_schema=False)
-    def serve_spa():
+
+@app.get('/', include_in_schema=False)
+def serve_spa():
+    if DIST_DIR.exists():
         return FileResponse(DIST_DIR / 'index.html')
+    return {'message': 'NAMASTE Sentinel API', 'status': 'ok'}
 model=RiskModel()
 @app.on_event('startup')
 def startup(): init_db()
