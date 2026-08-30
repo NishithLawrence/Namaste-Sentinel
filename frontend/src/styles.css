@@ -23,10 +23,19 @@
   --font-mono: 'IBM Plex Mono', 'JetBrains Mono', monospace;
 }
 
-* {
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+*, *::before, *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, div, button, a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 body {
@@ -55,6 +64,8 @@ body {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .demo-top-banner span.badge {
@@ -70,8 +81,10 @@ body {
 
 .shell {
   max-width: 1320px;
+  width: 100%;
   margin: 0 auto;
   padding: 24px 24px 48px;
+  box-sizing: border-box;
 }
 
 /* Top Navigation Bar */
@@ -85,6 +98,12 @@ body {
   gap: 16px;
   margin-bottom: 24px;
   border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nav-brand {
+  min-width: 0;
 }
 
 .brand-eyebrow {
@@ -111,6 +130,7 @@ body {
   flex-direction: column;
   align-items: flex-end;
   gap: 6px;
+  min-width: 0;
 }
 
 .site-badge {
@@ -140,6 +160,7 @@ body {
   height: 10px;
   border-radius: 2px;
   background-color: var(--color-safe);
+  flex-shrink: 0;
 }
 
 .status-indicator-dot.stale {
@@ -155,6 +176,8 @@ body {
   border-radius: 4px;
   font-weight: 700;
   margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Controller Card */
@@ -164,6 +187,8 @@ body {
   border-radius: 4px;
   padding: 20px 24px;
   margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .controller-header {
@@ -192,12 +217,8 @@ body {
   display: grid;
   grid-template-columns: auto repeat(5, 1fr);
   gap: 10px;
-}
-
-@media (max-width: 900px) {
-  .demo-buttons-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .demo-btn {
@@ -216,6 +237,8 @@ body {
   justify-content: center;
   gap: 6px;
   transition: background-color 0.1s ease, border-color 0.1s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .demo-btn:hover:not(:disabled) {
@@ -281,6 +304,8 @@ body {
   margin-bottom: 14px;
   flex-wrap: wrap;
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .pipeline-step {
@@ -307,6 +332,7 @@ body {
   font-size: 10px;
   font-family: var(--font-mono);
   font-weight: 800;
+  flex-shrink: 0;
 }
 
 .pipeline-step.final .step-num {
@@ -320,10 +346,6 @@ body {
   font-size: 12px;
 }
 
-@media (max-width: 900px) {
-  .pipeline-ribbon { display: none; }
-}
-
 /* Primary Risk Decision Panel */
 .risk-decision-panel {
   border-radius: 4px;
@@ -334,6 +356,8 @@ body {
   align-items: center;
   border: 2px solid var(--border-color);
   gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .decision-sub-breakdown {
@@ -386,6 +410,7 @@ body {
 
 .decision-main {
   flex: 1;
+  min-width: 0;
 }
 
 .decision-header-row {
@@ -401,6 +426,8 @@ body {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 4px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .risk-decision-panel.go .status-badge {
@@ -459,6 +486,7 @@ body {
   padding: 16px 24px;
   border-radius: 4px;
   min-width: 160px;
+  box-sizing: border-box;
 }
 
 .risk-meter-title {
@@ -494,6 +522,8 @@ body {
   margin: 28px 0 14px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .section-header h2 {
@@ -518,14 +548,8 @@ body {
   grid-template-columns: repeat(5, 1fr);
   gap: 14px;
   margin-bottom: 24px;
-}
-
-@media (max-width: 1100px) {
-  .sensors-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (max-width: 700px) {
-  .sensors-grid { grid-template-columns: 1fr; }
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .sensor-card {
@@ -537,6 +561,9 @@ body {
   flex-direction: column;
   justify-content: space-between;
   height: 170px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .sensor-header {
@@ -607,6 +634,7 @@ body {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   padding: 4px;
+  box-sizing: border-box;
 }
 
 .sparkline-box svg {
@@ -618,10 +646,14 @@ body {
 /* Lower Section Layout: Decision Evidence Panel & Incident Log */
 .telemetry-section {
   margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .evidence-panel-section {
   margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .evidence-panel {
@@ -629,18 +661,16 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 16px 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .factors-compact-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-}
-
-@media (max-width: 900px) {
-  .factors-compact-grid {
-    grid-template-columns: 1fr;
-  }
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .factor-compact-card {
@@ -651,6 +681,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .factor-top {
@@ -716,6 +749,8 @@ body {
 /* Incident Response Log Section */
 .incident-log-section {
   margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .incident-log-panel {
@@ -723,6 +758,8 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 16px 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .incident-log-scroll {
@@ -731,6 +768,8 @@ body {
   border: 1px solid var(--border-color);
   background-color: var(--bg-secondary);
   border-radius: 3px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .incident-row {
@@ -742,6 +781,8 @@ body {
   border-bottom: 1px solid var(--border-color);
   background-color: var(--bg-secondary);
   transition: background-color 0.1s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .incident-row:last-child {
@@ -842,29 +883,6 @@ body {
   text-align: center;
 }
 
-@media (max-width: 768px) {
-  .incident-row {
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 12px;
-    min-height: auto;
-  }
-  .incident-time-col {
-    min-width: auto;
-  }
-  .incident-main-col {
-    width: 100%;
-    order: 3;
-  }
-  .incident-msg {
-    white-space: normal;
-  }
-  .incident-action-col {
-    width: auto;
-    margin-left: auto;
-  }
-}
-
 /* Threshold Legend Card */
 .threshold-legend-card {
   background-color: var(--bg-surface);
@@ -872,16 +890,16 @@ body {
   border-radius: 4px;
   padding: 20px 24px;
   margin-bottom: 28px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .legend-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
-}
-
-@media (max-width: 900px) {
-  .legend-grid { grid-template-columns: 1fr 1fr; }
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .legend-item {
@@ -889,6 +907,9 @@ body {
   border: 1px solid var(--border-color);
   padding: 12px 14px;
   border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .legend-title {
@@ -920,6 +941,171 @@ body {
   font-size: 12px;
   color: var(--text-dim);
   border-top: 1px solid var(--border-color);
-  padding-top: 20px;
+  padding: 20px 16px;
   line-height: 1.6;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ==================================================
+   RESPONSIVE BREAKPOINTS (Tablet & Mobile)
+   ================================================== */
+
+@media (max-width: 1100px) {
+  .sensors-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .pipeline-ribbon { display: none; }
+  .demo-buttons-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .factors-compact-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .legend-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .shell {
+    padding: 12px 12px 32px;
+  }
+
+  .top-nav-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .nav-brand {
+    width: 100%;
+  }
+
+  .brand-title {
+    font-size: 22px;
+  }
+
+  .nav-meta {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .site-badge {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .stream-status-pill {
+    font-size: 11px;
+  }
+
+  .risk-decision-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .decision-title-text {
+    font-size: 30px;
+    margin-bottom: 6px;
+  }
+
+  .status-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    white-space: normal;
+  }
+
+  .decision-reason-text {
+    font-size: 13px;
+  }
+
+  .risk-meter-display {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 16px;
+  }
+
+  .risk-score-value {
+    font-size: 42px;
+  }
+
+  .sensors-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sensor-card {
+    height: auto;
+    min-height: 150px;
+  }
+
+  .factors-compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .incident-log-panel {
+    padding: 12px;
+  }
+
+  .incident-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .incident-time-col, .incident-main-col, .incident-action-col {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .incident-action-col {
+    justify-content: flex-start;
+  }
+
+  .incident-msg {
+    white-space: normal;
+  }
+
+  .ack-button {
+    width: 100%;
+  }
+
+  .controller-card {
+    padding: 16px;
+  }
+
+  .threshold-legend-card {
+    padding: 16px;
+  }
+
+  .legend-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .demo-buttons-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .legend-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .decision-title-text {
+    font-size: 26px;
+  }
+
+  .demo-btn {
+    font-size: 12px;
+    padding: 10px 8px;
+    min-height: 44px;
+  }
 }

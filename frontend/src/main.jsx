@@ -349,38 +349,38 @@ function App() {
             </div>
           </section>
 
-          {/* 60–90 Second Judge Demo Controller Toolbar */}
+          {/* Scenario Controller Toolbar */}
           <section className="controller-card">
             <div className="controller-header">
               <div className="controller-title">
-                <span>🎮 60–90 SECOND JUDGE DEMO CONTROLLER</span>
+                <span>🎛 SCENARIO CONTROLLER</span>
               </div>
-              <div className="controller-subtitle">Trigger synthetic simulation scenarios to test real-time AI anomaly scoring and hard-rule decisions</div>
+              <div className="controller-subtitle">Run controlled scenarios to evaluate real-time anomaly scoring and safety decisions.</div>
             </div>
 
             <div className="demo-buttons-grid">
               <button disabled={busy} className="demo-btn reset" onClick={resetDemo}>
-                {activeMode === 'reset' ? 'Resetting...' : '🔄 0. Reset Baseline'}
+                {activeMode === 'reset' ? 'Resetting...' : '🔄 Reset Baseline'}
               </button>
               <button disabled={busy} className="demo-btn stable" onClick={() => simulate('normal')}>
-                {activeMode === 'normal' ? 'Simulating...' : '✓ 1. Stable Baseline (GO)'}
+                {activeMode === 'normal' ? 'Simulating...' : '✓ Stable Baseline (GO)'}
               </button>
               <button disabled={busy} className="demo-btn decline" onClick={() => simulate('decline')}>
-                {activeMode === 'decline' ? 'Simulating...' : '⚠ 2. Deterioration (CAUTION)'}
+                {activeMode === 'decline' ? 'Simulating...' : '⚠ Deterioration (CAUTION)'}
               </button>
               <button disabled={busy} className="demo-btn rise" onClick={() => simulate('rise')}>
-                {activeMode === 'rise' ? 'Simulating...' : '⛔ 3. Rapid Gas Spike (NO-GO)'}
+                {activeMode === 'rise' ? 'Simulating...' : '⛔ Rapid Gas Spike (NO-GO)'}
               </button>
               <button disabled={busy} className="demo-btn noise" onClick={() => simulate('noise')}>
-                {activeMode === 'noise' ? 'Simulating...' : '⚡ 4. Noise Spike (Debounced)'}
+                {activeMode === 'noise' ? 'Simulating...' : '⚡ Noise Spike (Debounced)'}
               </button>
               <button disabled={busy} className="demo-btn recovery" onClick={() => simulate('recovery')}>
-                {activeMode === 'recovery' ? 'Simulating...' : '🔄 5. Recovery (GO)'}
+                {activeMode === 'recovery' ? 'Simulating...' : '🔄 Recovery (GO)'}
               </button>
             </div>
           </section>
 
-          {/* Prototype Demo Threshold Legend Card */}
+          {/* Decision Rules Card */}
           <section className="threshold-legend-card">
             <div className="panel-header" style={{ marginBottom: '12px' }}>
               <h2>DECISION RULES</h2>
@@ -407,13 +407,13 @@ function App() {
             </div>
 
             <div className="threshold-note">
-              Threshold values shown are illustrative prototype configuration only and are not real-world safety limits.
+              Threshold values shown are illustrative configuration values only.
             </div>
           </section>
 
-          {/* Mandatory Legal & Safety Disclaimer */}
+          {/* Single Mandatory Safety Notice */}
           <footer className="footer-notice">
-            PROTOTYPE & DEMO INTERFACE ONLY — This application is a hackathon proof-of-concept demonstration. It DOES NOT provide certified safety clearance, authorize real-world hazardous entry, replace calibrated hardware gas detectors, or substitute for trained safety professionals. All thresholds (including the 18 ppm H₂S demo limit) are illustrative prototype values only.
+            SAFETY NOTICE — This application is a proof-of-concept system. It does not provide certified safety clearance, authorize real-world hazardous entry, replace calibrated gas detectors, or substitute for trained safety professionals. Threshold values shown are illustrative configuration values only and are not real-world safety limits.
           </footer>
         </main>
       </div>
