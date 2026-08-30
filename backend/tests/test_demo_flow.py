@@ -2,17 +2,27 @@ import pytest
 from datetime import datetime, timezone, timedelta
 from fastapi.testclient import TestClient
 from backend.app.main import app, model
-from backend.app.db import init_db, get_connection, insert_telemetry
+from backend.app.db import init_db, get_connection, insert_telemetry, is_postgres
 
 client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def setup_db():
     init_db()
-    with get_connection() as conn:
-        conn.execute("DELETE FROM telemetry")
-        conn.execute("DELETE FROM events")
-        conn.commit()
+    if is_postgres():
+        conn = get_connection()
+        try:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM telemetry")
+                cur.execute("DELETE FROM events")
+            conn.commit()
+        finally:
+            conn.close()
+    else:
+        with get_connection() as conn:
+            conn.execute("DELETE FROM telemetry")
+            conn.execute("DELETE FROM events")
+            conn.commit()
 
 def test_stable_to_go():
     res = client.post("/simulation/event", json={"site_id": "MANHOLE-01", "mode": "normal", "points": 10})

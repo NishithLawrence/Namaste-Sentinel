@@ -3,6 +3,10 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+
 try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
@@ -53,7 +57,7 @@ def init_db():
                   final_decision TEXT,
                   reason TEXT,
                   explanation TEXT,
-                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 );
                 CREATE TABLE IF NOT EXISTS events (
                   id SERIAL PRIMARY KEY,
@@ -62,8 +66,12 @@ def init_db():
                   event_type TEXT NOT NULL,
                   severity TEXT NOT NULL,
                   message TEXT NOT NULL,
-                  acknowledged INTEGER DEFAULT 0
-                );''')
+                  acknowledged INTEGER DEFAULT 0,
+                  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE INDEX IF NOT EXISTS idx_telemetry_site_id ON telemetry(site_id, id DESC);
+                CREATE INDEX IF NOT EXISTS idx_events_site_id ON events(site_id, id DESC);
+                ''')
             conn.commit()
         finally:
             conn.close()
