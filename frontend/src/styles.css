@@ -41,8 +41,11 @@ h1, h2, h3, h4, h5, h6, p, span, div, button, a {
 body {
   font-family: var(--font-body);
   background-color: var(--bg-main);
-  background-image: radial-gradient(#1B2A32 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: linear-gradient(rgba(11, 17, 21, 0.65), rgba(11, 17, 21, 0.65)), url('/assets/a_high_resolution_cinematic_futuristic_industria.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-main);
   min-height: 100vh;
   line-height: 1.5;
