@@ -317,12 +317,6 @@ function App() {
 
   return (
     <div className="app">
-      {/* Permanent Mandatory Notice Banner */}
-      <div className="demo-top-banner">
-        <span className="badge">SIMULATION MODE — PROTOTYPE DATA</span>
-        <span>Illustrative thresholds only — not real-world safety limits.</span>
-      </div>
-
       <div className="shell">
         {/* Top Navigation Bar */}
         <header className="top-nav-bar">
