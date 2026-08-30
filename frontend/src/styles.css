@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-main: #0B1115;
-  --bg-surface: #111A20;
-  --bg-secondary: #162229;
+  --bg-main: #050F14;
+  --bg-surface: rgba(17, 26, 32, 0.92);
+  --bg-secondary: rgba(22, 34, 41, 0.92);
   --bg-elevated: #1B2A32;
-  --bg-structural: #202C33;
+  --bg-structural: rgba(32, 44, 51, 0.95);
 
   --brand-primary: #19A7B8;
   --brand-accent: #2CC6D6;
@@ -23,10 +23,14 @@
   --font-mono: 'IBM Plex Mono', 'JetBrains Mono', monospace;
 }
 
-html, body {
+html, body, #root {
   width: 100%;
   max-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
   overflow-x: hidden;
+  background-color: #050F14;
 }
 
 *, *::before, *::after {
@@ -40,16 +44,32 @@ h1, h2, h3, h4, h5, h6, p, span, div, button, a {
 
 body {
   font-family: var(--font-body);
-  background-color: var(--bg-main);
-  background-image: linear-gradient(rgba(11, 17, 21, 0.65), rgba(11, 17, 21, 0.65)), url('/assets/a_high_resolution_cinematic_futuristic_industria.png');
+  background-color: #050F14;
+  background-image: linear-gradient(rgba(5, 15, 20, 0.35), rgba(5, 15, 20, 0.35)), url('/assets/a_high_resolution_cinematic_futuristic_industria.png');
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text-main);
-  min-height: 100vh;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  position: relative;
+  min-height: 100vh;
+  background: transparent;
+  width: 100%;
+  max-width: 100%;
+}
+
+.shell {
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 24px 48px;
+  box-sizing: border-box;
+  background: transparent;
 }
 
 /* Civic Safety Notice Banner */
@@ -80,14 +100,6 @@ body {
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-}
-
-.shell {
-  max-width: 1320px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 24px 24px 48px;
-  box-sizing: border-box;
 }
 
 /* Top Navigation Bar */

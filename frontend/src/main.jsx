@@ -148,7 +148,7 @@ function App() {
   }
 
   return (
-    <div>
+    <div className="app">
       {/* Permanent Mandatory Notice Banner */}
       <div className="demo-top-banner">
         <span className="badge">SIMULATION MODE — PROTOTYPE DATA</span>
