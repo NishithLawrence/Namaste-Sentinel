@@ -6,11 +6,11 @@ const API = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && wi
 const SITE = 'MANHOLE-01'
 
 const SENSOR_META = {
-  h2s: { label: 'H₂S (Hydrogen Sulfide)', unit: 'ppm', limit: 'Simulated Threshold: ≥ 18.0 ppm' },
-  ch4: { label: 'CH₄ (Methane)', unit: '% LEL', limit: 'Simulated Threshold: ≥ 4.0 % LEL' },
-  o2: { label: 'O₂ (Oxygen)', unit: '%', limit: 'Simulated Threshold: ≤ 18.5 %' },
-  temperature: { label: 'Temperature', unit: '°C', limit: 'Demo Baseline: ~28.0 °C' },
-  humidity: { label: 'Humidity', unit: '%', limit: 'Demo Baseline: ~72 %' },
+  h2s: { label: 'H₂S (Hydrogen Sulfide)', unit: 'ppm', limit: 'Configured threshold: ≥ 18.0 ppm' },
+  ch4: { label: 'CH₄ (Methane)', unit: '% LEL', limit: 'Configured threshold: ≥ 4.0 % LEL' },
+  o2: { label: 'O₂ (Oxygen)', unit: '%', limit: 'Configured floor: ≤ 18.5 %' },
+  temperature: { label: 'Temperature', unit: '°C', limit: 'Baseline: ~28.0 °C' },
+  humidity: { label: 'Humidity', unit: '%', limit: 'Baseline: ~72 %' },
 }
 
 function MiniSparkline({ data, field }) {
@@ -151,16 +151,15 @@ function App() {
     <div>
       {/* Permanent Mandatory Notice Banner */}
       <div className="demo-top-banner">
-        <span className="badge">SIMULATED DEMO DATA</span>
-        <span>NAMASTE Sentinel Proof-of-Concept — Illustrative Thresholds Only (Not Real Safety Limits)</span>
-        <span className="badge">PROTOTYPE ONLY</span>
+        <span className="badge">SIMULATION MODE — PROTOTYPE DATA</span>
+        <span>Illustrative thresholds only — not real-world safety limits.</span>
       </div>
 
       <div className="shell">
         {/* Top Navigation Bar */}
         <header className="top-nav-bar">
           <div className="nav-brand">
-            <div className="brand-eyebrow">Confined Space Risk Intelligence Prototype</div>
+            <div className="brand-eyebrow">ATMOSPHERIC RISK INTELLIGENCE</div>
             <h1 className="brand-title">NAMASTE SENTINEL</h1>
           </div>
 
@@ -168,7 +167,7 @@ function App() {
             <div className="site-badge">LOCATION: {SITE}</div>
             <div className="stream-status-pill">
               <span className={`status-indicator-dot ${isFresh ? '' : 'stale'}`} />
-              <span>{isFresh ? `LIVE SIMULATED STREAM` : `LINK STALE (${dataAge}s ago)`}</span>
+              <span>{isFresh ? `LIVE STREAM (DATA SOURCE: SIMULATION)` : `LINK STALE (${dataAge}s ago)`}</span>
             </div>
           </div>
         </header>
@@ -240,8 +239,8 @@ function App() {
           {/* Real-time Atmospheric Telemetry & Sparklines */}
           <section className="telemetry-section">
             <div className="section-header">
-              <h2>Simulated Atmospheric Telemetry Streams</h2>
-              <span>{history.length} time-series data points</span>
+              <h2>ATMOSPHERIC TELEMETRY</h2>
+              <span>{history.length} time-series data points (DATA SOURCE: SIMULATION)</span>
             </div>
 
             <div className="sensors-grid">
@@ -276,8 +275,8 @@ function App() {
           <section className="evidence-panel-section">
             <div className="panel-card evidence-panel">
               <div className="panel-header">
-                <h2>Multivariate Anomaly Factors</h2>
-                <span>Explainable AI Driver Hierarchy</span>
+                <h2>DECISION EVIDENCE</h2>
+                <span>Multivariate Anomaly Factors & Explainable AI Hierarchy</span>
               </div>
 
               {(status?.factors || []).length ? (
@@ -312,8 +311,8 @@ function App() {
           <section className="incident-log-section">
             <div className="panel-card incident-log-panel">
               <div className="panel-header">
-                <h2>Simulated Event Timeline</h2>
-                <span>{events.length} system audit records</span>
+                <h2>SAFETY EVENT LOG</h2>
+                <span>Detection, warning, escalation and acknowledgement history ({events.length} records)</span>
               </div>
 
               {events.length ? (
@@ -384,27 +383,31 @@ function App() {
           {/* Prototype Demo Threshold Legend Card */}
           <section className="threshold-legend-card">
             <div className="panel-header" style={{ marginBottom: '12px' }}>
-              <h2>Simulated Demo Thresholds & Prototype Decision Rules</h2>
-              <span>Illustrative Demo Thresholds — Not Real-World Safety Standards</span>
+              <h2>DECISION RULES</h2>
+              <span>Configured decision logic</span>
             </div>
 
             <div className="legend-grid">
               <div className="legend-item">
-                <span className="legend-title">H₂S Demo Limit: ≥ 18.0 ppm</span>
-                <span className="legend-desc">Simulated demo safety ceiling. Illustrative prototype limit; does not replace OSHA/NIOSH standards.</span>
+                <span className="legend-title">H₂S</span>
+                <span className="legend-desc">Configured threshold: ≥ 18.0 ppm</span>
               </div>
               <div className="legend-item">
-                <span className="legend-title">CH₄ Demo Limit: ≥ 4.0 % LEL</span>
-                <span className="legend-desc">Simulated demo safety ceiling. Illustrative prototype limit only.</span>
+                <span className="legend-title">CH₄</span>
+                <span className="legend-desc">Configured threshold: ≥ 4.0 % LEL</span>
               </div>
               <div className="legend-item">
-                <span className="legend-title">O₂ Demo Limit: ≤ 18.5 %</span>
-                <span className="legend-desc">Simulated demo oxygen floor limit. Illustrative prototype limit only.</span>
+                <span className="legend-title">O₂</span>
+                <span className="legend-desc">Configured floor: ≤ 18.5 %</span>
               </div>
               <div className="legend-item">
-                <span className="legend-title">AI Anomaly Debounce: 3 Samples</span>
-                <span className="legend-desc">Requires sustained risk to prevent false noise lockout in prototype simulation.</span>
+                <span className="legend-title">AI Anomaly Debounce</span>
+                <span className="legend-desc">3 consecutive samples</span>
               </div>
+            </div>
+
+            <div className="threshold-note">
+              Threshold values shown are illustrative prototype configuration only and are not real-world safety limits.
             </div>
           </section>
 

@@ -919,6 +919,14 @@ body {
   line-height: 1.4;
 }
 
+.threshold-note {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+}
+
 /* Footer Notice */
 .footer-notice {
   text-align: center;
