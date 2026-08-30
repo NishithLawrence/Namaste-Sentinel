@@ -149,10 +149,10 @@ def insert_telemetry_log(row: dict[str, Any]) -> int | None:
     except Exception:
         pass
 
-    # 2. Supabase REST API Insertion (if SUPABASE_URL and SUPABASE_KEY exist)
+    # 2. Supabase REST API Insertion fallback (if SQL insertion did not run/succeed)
     sb_url = os.getenv('SUPABASE_URL')
     sb_key = os.getenv('SUPABASE_KEY') or os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
-    if sb_url and sb_key:
+    if not log_id and sb_url and sb_key:
         try:
             import urllib.request
             import json
