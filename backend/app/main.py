@@ -37,17 +37,25 @@ def serve_spa():
 model=RiskModel()
 @app.on_event('startup')
 def startup(): init_db()
-def process(reading):
-    hist=fetch_telemetry(reading['site_id'],120); result=model.score(reading,hist); d=decide(reading,result.anomaly_score,result.risk_score,hist)
-    row={**reading,'anomaly_score':result.anomaly_score,'risk_score':result.risk_score,'rule_state':d.rule_state,'final_decision':d.final_decision,'reason':d.reason,'explanation':json.dumps(result.factors)}
-    tid=insert_telemetry(row)
-    if d.escalated: insert_event({'timestamp':reading['timestamp'],'site_id':reading['site_id'],'event_type':'ESCALATION','severity':d.final_decision,'message':d.reason})
-    elif d.final_decision=='CAUTION': insert_event({'timestamp':reading['timestamp'],'site_id':reading['site_id'],'event_type':'WARNING','severity':'CAUTION','message':d.reason})
-    return {'id':tid,**row,'factors':result.factors,'reason':d.reason}
+def process(reading, hist=None):
+    if hist is None:
+        hist = fetch_telemetry(reading['site_id'], 120)
+    result = model.score(reading, hist)
+    d = decide(reading, result.anomaly_score, result.risk_score, hist)
+    row = {**reading, 'anomaly_score': result.anomaly_score, 'risk_score': result.risk_score, 'rule_state': d.rule_state, 'final_decision': d.final_decision, 'reason': d.reason, 'explanation': json.dumps(result.factors)}
+    tid = insert_telemetry(row)
+    if d.escalated:
+        insert_event({'timestamp': reading['timestamp'], 'site_id': reading['site_id'], 'event_type': 'ESCALATION', 'severity': d.final_decision, 'message': d.reason})
+    elif d.final_decision == 'CAUTION':
+        insert_event({'timestamp': reading['timestamp'], 'site_id': reading['site_id'], 'event_type': 'WARNING', 'severity': 'CAUTION', 'message': d.reason})
+    return {'id': tid, **row, 'factors': result.factors, 'reason': d.reason}
+
 @app.get('/health')
 def health(): return {'status':'ok','service':'namaste-sentinel-api','prototype':True}
+
 @app.post('/telemetry')
 def telemetry(p:TelemetryIn): return process(p.model_dump())
+
 @app.get('/sites/{site_id}/status')
 def status(site_id:str):
     item=latest(site_id)
@@ -64,14 +72,26 @@ def status(site_id:str):
         item['final_decision'] = 'UNCERTAIN'
         item['reason'] = f'STALE TELEMETRY: Last reading received {int(age)}s ago. System state unverified.'
     return item
+
 @app.get('/sites/{site_id}/telemetry')
 def telemetry_history(site_id:str,limit:int=120): return fetch_telemetry(site_id,max(1,min(limit,500)))
+
 @app.get('/sites/{site_id}/events')
 def events(site_id:str,limit:int=50): return fetch_events(site_id,max(1,min(limit,200)))
+
 @app.post('/simulation/event')
 def simulation(p:SimulationEvent):
-    results=[process({'site_id':p.site_id,**r}) for r in generate(p.mode,p.points)]
-    return {'mode':p.mode,'points':len(results),'results':results,'latest':results[-1]}
+    generated = generate(p.mode, p.points)
+    hist = fetch_telemetry(p.site_id, 120)
+    results = []
+    for r in generated:
+        reading = {'site_id': p.site_id, **r}
+        res = process(reading, hist)
+        results.append(res)
+        hist.append(res)
+        if len(hist) > 120:
+            hist = hist[-120:]
+    return {'mode': p.mode, 'points': len(results), 'results': results, 'latest': results[-1]}
 @app.post('/alerts/{event_id}/acknowledge',response_model=AcknowledgeResponse)
 def acknowledge(event_id:int):
     if not ack_event(event_id): raise HTTPException(404,'Alert not found')
