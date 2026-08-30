@@ -14,8 +14,8 @@ const SENSOR_META = {
 }
 
 function MiniSparkline({ data, field }) {
-  const { points, areaPoints, strokeColor, fillColor } = useMemo(() => {
-    if (!data || data.length < 2) return { points: '', areaPoints: '', strokeColor: '#10b981', fillColor: 'rgba(16, 185, 129, 0.1)' }
+  const { points, strokeColor } = useMemo(() => {
+    if (!data || data.length < 2) return { points: '', strokeColor: '#126278' }
     const vals = data.map(d => Number(d[field] ?? 0))
     const min = Math.min(...vals)
     const max = Math.max(...vals)
@@ -27,24 +27,18 @@ function MiniSparkline({ data, field }) {
       return `${x.toFixed(1)},${y.toFixed(1)}`
     })
 
-    const stroke = field === 'o2' ? (vals.at(-1) <= 18.5 ? '#ef4444' : '#10b981') : (field === 'h2s' ? (vals.at(-1) >= 18 ? '#ef4444' : vals.at(-1) >= 6 ? '#f59e0b' : '#10b981') : '#38bdf8')
-    const polylineStr = pts.join(' ')
-    const areaStr = `0,95 ${polylineStr} 100,95`
-
-    return { points: polylineStr, areaPoints: areaStr, strokeColor: stroke, fillColor: stroke }
+    const stroke = field === 'o2' 
+      ? (vals.at(-1) <= 18.5 ? '#D61F3A' : '#16845A') 
+      : (field === 'h2s' 
+        ? (vals.at(-1) >= 18 ? '#D61F3A' : vals.at(-1) >= 6 ? '#F5A623' : '#16845A') 
+        : '#126278')
+    return { points: pts.join(' '), strokeColor: stroke }
   }, [data, field])
 
   return (
     <div className="sparkline-box">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id={`grad-${field}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={fillColor} stopOpacity="0.35" />
-            <stop offset="100%" stopColor={fillColor} stopOpacity="0.0" />
-          </linearGradient>
-        </defs>
-        <polygon fill={`url(#grad-${field})`} points={areaPoints} />
-        <polyline fill="none" stroke={strokeColor} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" points={points} />
+        <polyline fill="none" stroke={strokeColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" points={points} />
       </svg>
     </div>
   )
@@ -130,10 +124,14 @@ function App() {
   const dataAge = status ? Math.round(status.data_age_seconds || 0) : 0
 
   const getDecisionBadgeText = () => {
-    if (!isFresh) return '❓ PROTOTYPE STATUS: TELEMETRY UNCERTAIN (STALE DATA LINK)'
-    if (decision === 'GO') return '✓ PROTOTYPE EVALUATION: ATMOSPHERE STABLE (GO)'
-    if (decision === 'CAUTION') return '⚠️ PROTOTYPE EVALUATION: ELEVATED ANOMALY RISK (CAUTION)'
-    if (decision === 'NO-GO') return '⛔ PROTOTYPE EVALUATION: SIMULATED BREACH (NO-GO)'
+    if (!isFresh) return '! UNCERTAIN — TELEMETRY LINK STALE'
+    if (decision === 'GO') return '✓ GO — ATMOSPHERE STABLE (BASELINE CLEAR)'
+    if (decision === 'CAUTION') return '⚠ CAUTION — PREDICTIVE AI ANOMALY (SAFETY RULES CLEAR)'
+    if (decision === 'NO-GO') {
+      return status?.rule_state === 'NO-GO'
+        ? '⛔ NO-GO — DETERMINISTIC SAFETY RULE BREACH (OVERRIDE)'
+        : '⛔ NO-GO — SUSTAINED AI ANOMALY ESCALATION'
+    }
     return decision
   }
 
@@ -159,18 +157,17 @@ function App() {
       </div>
 
       <div className="shell">
-        {/* Header */}
-        <header className="header">
-          <div>
+        {/* Top Navigation Bar */}
+        <header className="top-nav-bar">
+          <div className="nav-brand">
             <div className="brand-eyebrow">Confined Space Risk Intelligence Prototype</div>
-            <h1>NAMASTE Sentinel</h1>
-            <p>Multivariate Anomaly & Predictive Risk Intelligence Engine (Proof of Concept)</p>
+            <h1 className="brand-title">NAMASTE SENTINEL</h1>
           </div>
 
-          <div className="site-badge-container">
-            <div className="site-id">LOCATION: {SITE}</div>
-            <div className="stream-status">
-              <div className={`status-dot ${isFresh ? '' : 'stale'}`} />
+          <div className="nav-meta">
+            <div className="site-badge">LOCATION: {SITE}</div>
+            <div className="stream-status-pill">
+              <span className={`status-indicator-dot ${isFresh ? '' : 'stale'}`} />
               <span>{isFresh ? `LIVE SIMULATED STREAM` : `LINK STALE (${dataAge}s ago)`}</span>
             </div>
           </div>
@@ -178,6 +175,180 @@ function App() {
 
         <main>
           {error && <div className="notice">{error}</div>}
+
+          {/* Operational Intelligence Pipeline Ribbon */}
+          <div className="pipeline-ribbon">
+            <div className="pipeline-step">
+              <span className="step-num">1</span>
+              <span className="step-label">SENSOR CHANGE</span>
+            </div>
+            <span className="pipeline-arrow">➔</span>
+            <div className="pipeline-step">
+              <span className="step-num">2</span>
+              <span className="step-label">TREND / ANOMALY</span>
+            </div>
+            <span className="pipeline-arrow">➔</span>
+            <div className="pipeline-step">
+              <span className="step-num">3</span>
+              <span className="step-label">AI RISK</span>
+            </div>
+            <span className="pipeline-arrow">➔</span>
+            <div className="pipeline-step">
+              <span className="step-num">4</span>
+              <span className="step-label">HARD SAFETY RULE</span>
+            </div>
+            <span className="pipeline-arrow">➔</span>
+            <div className="pipeline-step final">
+              <span className="step-num">5</span>
+              <span className="step-label">DECISION & ESCALATION</span>
+            </div>
+          </div>
+
+          {/* Primary Safety Risk Decision Banner Card */}
+          <section className={`risk-decision-panel ${isFresh ? className : 'uncertain'}`}>
+            <div className="decision-main">
+              <div className="decision-header-row">
+                <span className="status-badge">{getDecisionBadgeText()}</span>
+              </div>
+              <div className="decision-title-text">{isFresh ? decision : 'UNCERTAIN'}</div>
+              <div className="decision-reason-text">
+                {status?.reason || 'Initialize simulation baseline to compute multivariate anomaly evaluation.'}
+              </div>
+
+              <div className="decision-sub-breakdown">
+                <span className="breakdown-pill">
+                  <strong>SAFETY RULES:</strong> {status?.rule_state === 'NO-GO' ? '⛔ BREACHED (OVERRIDE)' : '✓ CLEAR (0 BREACHES)'}
+                </span>
+                <span className="breakdown-pill">
+                  <strong>AI RISK SCORE:</strong> {score} / 100
+                </span>
+                {(status?.factors || []).length > 0 && (
+                  <span className="breakdown-pill">
+                    <strong>PRIMARY AI DRIVER:</strong> {status.factors[0].feature} ({status.factors[0].direction})
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="risk-meter-display">
+              <div className="risk-meter-title">ANOMALY SCORE</div>
+              <div className="risk-score-value">{isFresh ? score : '?'}</div>
+              <div className="risk-score-scale">/ 100 SCALE</div>
+            </div>
+          </section>
+
+          {/* Real-time Atmospheric Telemetry & Sparklines */}
+          <section className="telemetry-section">
+            <div className="section-header">
+              <h2>Simulated Atmospheric Telemetry Streams</h2>
+              <span>{history.length} time-series data points</span>
+            </div>
+
+            <div className="sensors-grid">
+              {Object.keys(SENSOR_META).map(field => {
+                const meta = SENSOR_META[field]
+                const val = history.length ? Number(history.at(-1)[field] ?? 0) : 0
+                const trend = calcTrend(field)
+
+                return (
+                  <div className="sensor-card" key={field}>
+                    <div className="sensor-header">
+                      <span className="sensor-label">{meta.label}</span>
+                    </div>
+
+                    <div className="sensor-readout-row">
+                      <span className="sensor-val">{val > 0 ? val.toFixed(2) : '—'}</span>
+                      <span className="sensor-unit">{meta.unit}</span>
+                    </div>
+
+                    <div className="sensor-meta-footer">
+                      <span className={`sensor-trend-badge ${trend.cls}`}>{trend.text}</span>
+                      <span className="sensor-limit-tag">{meta.limit}</span>
+                    </div>
+                    <MiniSparkline data={history} field={field} />
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+
+          {/* Decision Evidence Panel (Multivariate Anomaly Factors) - Full Width Compact Panel */}
+          <section className="evidence-panel-section">
+            <div className="panel-card evidence-panel">
+              <div className="panel-header">
+                <h2>Multivariate Anomaly Factors</h2>
+                <span>Explainable AI Driver Hierarchy</span>
+              </div>
+
+              {(status?.factors || []).length ? (
+                <div className="factors-compact-grid">
+                  {status.factors.map((f, idx) => {
+                    const pct = Math.min((f.impact / 4) * 100, 100)
+                    const rank = idx === 0 ? 'PRIMARY DRIVER' : (idx === 1 ? 'SECONDARY DRIVER' : 'CONTRIBUTING FACTOR')
+                    return (
+                      <div className="factor-compact-card" key={f.feature}>
+                        <div className="factor-top">
+                          <span className="factor-rank-badge">{rank}</span>
+                          <span className="factor-val">{f.impact.toFixed(2)}</span>
+                        </div>
+                        <div className="factor-middle">
+                          <span className="factor-name">{f.feature}</span>
+                          <span className="factor-dir">{f.direction}</span>
+                        </div>
+                        <div className="factor-bar-track">
+                          <div className="factor-bar-fill" style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="empty-msg">No active risk drivers detected. Telemetry signals stable against prototype baseline.</div>
+              )}
+            </div>
+          </section>
+
+          {/* Unified Incident Response Log Panel */}
+          <section className="incident-log-section">
+            <div className="panel-card incident-log-panel">
+              <div className="panel-header">
+                <h2>Simulated Event Timeline</h2>
+                <span>{events.length} system audit records</span>
+              </div>
+
+              {events.length ? (
+                <div className="incident-log-scroll">
+                  {events.map(e => (
+                    <div className={`incident-row ${!e.acknowledged && e.severity === 'NO-GO' ? 'unack' : ''}`} key={e.id}>
+                      <div className="incident-icon-col">
+                        {e.severity === 'NO-GO' && <span style={{ color: '#D61F3A', fontWeight: 'bold' }}>⛔</span>}
+                        {e.severity === 'CAUTION' && <span style={{ color: '#F5A623', fontWeight: 'bold' }}>⚠</span>}
+                        {e.severity === 'GO' && <span style={{ color: '#16845A', fontWeight: 'bold' }}>✓</span>}
+                      </div>
+                      <div className="incident-time-col">
+                        <span className="incident-timestamp">{new Date(e.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                      <div className="incident-main-col">
+                        <div className="incident-type-tag">{e.event_type} [{e.severity}]</div>
+                        <div className="incident-msg">{e.message}</div>
+                      </div>
+                      <div className="incident-action-col">
+                        {!e.acknowledged ? (
+                          <button className="ack-button" onClick={() => acknowledge(e.id)}>
+                            Acknowledge Alert
+                          </button>
+                        ) : (
+                          <span className="ack-status-tag">✓ Acknowledged</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-msg">No critical events logged. Click simulation controls below to test escalation.</div>
+              )}
+            </div>
+          </section>
 
           {/* 60–90 Second Judge Demo Controller Toolbar */}
           <section className="controller-card">
@@ -193,13 +364,13 @@ function App() {
                 {activeMode === 'reset' ? 'Resetting...' : '🔄 0. Reset Baseline'}
               </button>
               <button disabled={busy} className="demo-btn stable" onClick={() => simulate('normal')}>
-                {activeMode === 'normal' ? 'Simulating...' : '🟢 1. Stable Baseline (GO)'}
+                {activeMode === 'normal' ? 'Simulating...' : '✓ 1. Stable Baseline (GO)'}
               </button>
               <button disabled={busy} className="demo-btn decline" onClick={() => simulate('decline')}>
-                {activeMode === 'decline' ? 'Simulating...' : '🟡 2. Deterioration (CAUTION)'}
+                {activeMode === 'decline' ? 'Simulating...' : '⚠ 2. Deterioration (CAUTION)'}
               </button>
               <button disabled={busy} className="demo-btn rise" onClick={() => simulate('rise')}>
-                {activeMode === 'rise' ? 'Simulating...' : '🔴 3. Rapid Gas Spike (NO-GO)'}
+                {activeMode === 'rise' ? 'Simulating...' : '⛔ 3. Rapid Gas Spike (NO-GO)'}
               </button>
               <button disabled={busy} className="demo-btn noise" onClick={() => simulate('noise')}>
                 {activeMode === 'noise' ? 'Simulating...' : '⚡ 4. Noise Spike (Debounced)'}
@@ -210,155 +381,35 @@ function App() {
             </div>
           </section>
 
-          {/* Primary Safety Risk Decision Banner Card */}
-          <section className={`risk-decision-card ${isFresh ? className : 'uncertain'}`}>
-            <div className="decision-info">
-              <div className="decision-badge-row">
-                <span className="state-tag">{getDecisionBadgeText()}</span>
-              </div>
-              <div className="decision-title">{isFresh ? decision : 'UNCERTAIN'}</div>
-              <div className="decision-reason">
-                {status?.reason || 'Initialize simulation baseline to compute multivariate anomaly evaluation.'}
-              </div>
-            </div>
-
-            <div className="risk-meter-box">
-              <div className="risk-meter-label">ANOMALY SCORE</div>
-              <div className="risk-score-num">{isFresh ? score : '?'}</div>
-              <div className="risk-score-max">/ 100 SCALE</div>
-            </div>
-          </section>
-
-          {/* Real-time Atmospheric Telemetry & Sparklines */}
-          <section>
-            <div className="section-header">
-              <h2>Simulated Atmospheric Telemetry Streams</h2>
-              <span>{history.length} time-series data points</span>
-            </div>
-
-            <div className="sensors-grid">
-              {Object.keys(SENSOR_META).map(field => {
-                const meta = SENSOR_META[field]
-                const val = history.length ? Number(history.at(-1)[field] ?? 0) : 0
-                const trend = calcTrend(field)
-
-                return (
-                  <div className="sensor-card" key={field}>
-                    <div className="sensor-top">
-                      <div className="sensor-name">{meta.label}</div>
-                    </div>
-
-                    <div className="sensor-val-row">
-                      <div className="sensor-val">{val > 0 ? val.toFixed(2) : '—'}</div>
-                      <div className="sensor-unit">{meta.unit}</div>
-                      <div className={`sensor-trend ${trend.cls}`}>{trend.text}</div>
-                    </div>
-
-                    <div className="sensor-limit">{meta.limit}</div>
-                    <MiniSparkline data={history} field={field} />
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-
-          {/* Two Column Section: Explainability Factors & Event Timeline */}
-          <section className="two-col-grid">
-            {/* Panel 1: Explainable AI Anomaly Factors */}
-            <div className="panel-card">
-              <div className="section-header" style={{ margin: '0 0 16px 0' }}>
-                <h2>Multivariate Anomaly Factors</h2>
-                <span>Explainable AI Driver Hierarchy</span>
-              </div>
-
-              {(status?.factors || []).length ? (
-                <div className="factors-list">
-                  {status.factors.map(f => {
-                    const pct = Math.min((f.impact / 4) * 100, 100)
-                    return (
-                      <div className="factor-item" key={f.feature}>
-                        <div className="factor-info">
-                          <b>{f.feature}</b>
-                          <span>{f.direction}</span>
-                        </div>
-                        <div className="factor-bar-bg">
-                          <div className="factor-bar-fill" style={{ width: `${pct}%` }} />
-                        </div>
-                        <div className="factor-impact-val">{f.impact.toFixed(2)}</div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="empty-msg">No active risk drivers detected. Telemetry signals stable against prototype baseline.</div>
-              )}
-            </div>
-
-            {/* Panel 2: Simulated Event Timeline & Escalation Log */}
-            <div className="panel-card">
-              <div className="section-header" style={{ margin: '0 0 16px 0' }}>
-                <h2>Simulated Event Timeline</h2>
-                <span>{events.length} system audit records</span>
-              </div>
-
-              {events.length ? (
-                <div className="events-list">
-                  {events.map(e => (
-                    <div className={`event-item ${!e.acknowledged && e.severity === 'NO-GO' ? 'unack' : ''}`} key={e.id}>
-                      <div className={`event-sev-indicator ${e.severity}`} />
-                      <div className="event-details">
-                        <div className="event-details-top">
-                          <span className="event-type-badge">{e.event_type} [{e.severity}]</span>
-                          <span className="event-time">{new Date(e.timestamp).toLocaleTimeString()}</span>
-                        </div>
-                        <div className="event-msg">{e.message}</div>
-
-                        {!e.acknowledged ? (
-                          <button className="ack-btn" onClick={() => acknowledge(e.id)}>
-                            Acknowledge Alert
-                          </button>
-                        ) : (
-                          <span className="ack-done">✓ Acknowledged</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty-msg">No critical events logged. Click simulation controls above to test escalation.</div>
-              )}
-            </div>
-          </section>
-
           {/* Prototype Demo Threshold Legend Card */}
           <section className="threshold-legend-card">
-            <div className="section-header" style={{ margin: 0 }}>
+            <div className="panel-header" style={{ marginBottom: '12px' }}>
               <h2>Simulated Demo Thresholds & Prototype Decision Rules</h2>
               <span>Illustrative Demo Thresholds — Not Real-World Safety Standards</span>
             </div>
 
             <div className="legend-grid">
               <div className="legend-item">
-                <b>H₂S Demo Limit: ≥ 18.0 ppm</b>
-                <span>Simulated demo safety ceiling. Illustrative prototype limit; does not replace OSHA/NIOSH standards.</span>
+                <span className="legend-title">H₂S Demo Limit: ≥ 18.0 ppm</span>
+                <span className="legend-desc">Simulated demo safety ceiling. Illustrative prototype limit; does not replace OSHA/NIOSH standards.</span>
               </div>
               <div className="legend-item">
-                <b>CH₄ Demo Limit: ≥ 4.0 % LEL</b>
-                <span>Simulated demo safety ceiling. Illustrative prototype limit only.</span>
+                <span className="legend-title">CH₄ Demo Limit: ≥ 4.0 % LEL</span>
+                <span className="legend-desc">Simulated demo safety ceiling. Illustrative prototype limit only.</span>
               </div>
               <div className="legend-item">
-                <b>O₂ Demo Limit: ≤ 18.5 %</b>
-                <span>Simulated demo oxygen floor limit. Illustrative prototype limit only.</span>
+                <span className="legend-title">O₂ Demo Limit: ≤ 18.5 %</span>
+                <span className="legend-desc">Simulated demo oxygen floor limit. Illustrative prototype limit only.</span>
               </div>
               <div className="legend-item">
-                <b>AI Anomaly Debounce: 3 Samples</b>
-                <span>Requires sustained risk to prevent false noise lockout in prototype simulation.</span>
+                <span className="legend-title">AI Anomaly Debounce: 3 Samples</span>
+                <span className="legend-desc">Requires sustained risk to prevent false noise lockout in prototype simulation.</span>
               </div>
             </div>
           </section>
 
           {/* Mandatory Legal & Safety Disclaimer */}
-          <footer className="footer">
+          <footer className="footer-notice">
             PROTOTYPE & DEMO INTERFACE ONLY — This application is a hackathon proof-of-concept demonstration. It DOES NOT provide certified safety clearance, authorize real-world hazardous entry, replace calibrated hardware gas detectors, or substitute for trained safety professionals. All thresholds (including the 18 ppm H₂S demo limit) are illustrative prototype values only.
           </footer>
         </main>
