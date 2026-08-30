@@ -38,7 +38,7 @@ function MiniSparkline({ data, field }) {
   return (
     <div className="sparkline-box">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-        <polyline fill="none" stroke={strokeColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" points={pts.join ? points : ''} />
+        <polyline fill="none" stroke={strokeColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" points={points} />
       </svg>
     </div>
   )
